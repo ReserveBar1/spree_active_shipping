@@ -138,7 +138,8 @@ module Calculator::ActiveShipping
 
     def cache_key(order)
       addr = order.ship_address
-      @cache_key = "#{carrier.name}-#{order.number}-#{addr.country.iso}-#{addr.state ? addr.state.abbr : addr.state_name}-#{addr.city}-#{addr.zipcode}-#{order.line_items.map {|li| li.variant_id.to_s + "_" + li.quantity.to_s }.join("|")}".gsub(" ","")
+      carrier_name = carrier(order.retailer.shipping_config)
+      @cache_key = "#{carrier_name}-#{order.number}-#{addr.country.iso}-#{addr.state ? addr.state.abbr : addr.state_name}-#{addr.city}-#{addr.zipcode}-#{order.line_items.map {|li| li.variant_id.to_s + "_" + li.quantity.to_s }.join("|")}".gsub(" ","")
     end
   end
 end

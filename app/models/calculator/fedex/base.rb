@@ -1,5 +1,5 @@
 class Calculator::Fedex::Base < Calculator::ActiveShipping::Base
-  def carrier(config)
+  def carrier(config=nil)
     if config == nil # keep the original version with a single configuration working.
       ActiveMerchant::Shipping::FedEx.new(:key => Spree::ActiveShipping::Config[:fedex_key], 
                                          :password => Spree::ActiveShipping::Config[:fedex_password], 
