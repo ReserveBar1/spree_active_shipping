@@ -22,7 +22,7 @@ module Calculator::ActiveShipping
 #                           :state => Spree::ActiveShipping::Config[:origin_state],
 #                           :zip => Spree::ActiveShipping::Config[:origin_zip])
       # Each retailer has his own shipping location, so we need to get the retailer's address to calcuate shipping fees
-      orgin_address = order.retailer.physical_address
+      origin_address = order.retailer.physical_address
       origin = Location.new(:country => origin_address.country.iso, 
                             :city => origin_address.city,
                             :state => origin_address.state.abbr,
@@ -57,7 +57,7 @@ module Calculator::ActiveShipping
 #                                   :zip => Spree::ActiveShipping::Config[:origin_zip])
                                  
      # Each retailer has his own shipping location, so we need to get the retailer's address to calcuate shipping fees
-     orgin_address = order.retailer.physical_address
+     origin_address = order.retailer.physical_address
      origin = Location.new(:country => origin_address.country.iso, 
                            :city => origin_address.city,
                            :state => origin_address.state.abbr,
