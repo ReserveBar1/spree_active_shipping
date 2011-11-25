@@ -17,11 +17,17 @@ module Calculator::ActiveShipping
       else
         order = object
       end
-      origin= Location.new(:country => Spree::ActiveShipping::Config[:origin_country],
-                           :city => Spree::ActiveShipping::Config[:origin_city],
-                           :state => Spree::ActiveShipping::Config[:origin_state],
-                           :zip => Spree::ActiveShipping::Config[:origin_zip])
-
+#      origin= Location.new(:country => Spree::ActiveShipping::Config[:origin_country],
+#                           :city => Spree::ActiveShipping::Config[:origin_city],
+#                           :state => Spree::ActiveShipping::Config[:origin_state],
+#                           :zip => Spree::ActiveShipping::Config[:origin_zip])
+      # Each retailer has his own shipping location, so we need to get the retailer's address to calcuate shipping fees
+      orgin_address = order.retailer.address
+      origin = Location.new(:country => origin_address.country.iso, 
+                            :city => origin_address.city,
+                            :state => origin_address.state.abbr,
+                            :zip => origin_address.zipcode
+                            )
       addr = order.ship_address
 
       destination = Location.new(:country => addr.country.iso,
@@ -30,7 +36,7 @@ module Calculator::ActiveShipping
                                 :zip => addr.zipcode)
 
       rates = Rails.cache.fetch(cache_key(order)) do
-        rates = retrieve_rates(origin, destination, packages(order))
+        rates = retrieve_rates(origin, destination, packages(order), order.retailer.shipping_config)
       end
 
       return nil if rates.empty?
@@ -45,17 +51,26 @@ module Calculator::ActiveShipping
 
     def timing(line_items)
       order = line_items.first.order
-      origin      = Location.new(:country => Spree::ActiveShipping::Config[:origin_country],
-                                 :city => Spree::ActiveShipping::Config[:origin_city],
-                                 :state => Spree::ActiveShipping::Config[:origin_state],
-                                 :zip => Spree::ActiveShipping::Config[:origin_zip])
+#        origin      = Location.new(:country => Spree::ActiveShipping::Config[:origin_country],
+#                                   :city => Spree::ActiveShipping::Config[:origin_city],
+#                                   :state => Spree::ActiveShipping::Config[:origin_state],
+#                                   :zip => Spree::ActiveShipping::Config[:origin_zip])
+                                 
+     # Each retailer has his own shipping location, so we need to get the retailer's address to calcuate shipping fees
+     orgin_address = order.retailer.address
+     origin = Location.new(:country => origin_address.country.iso, 
+                           :city => origin_address.city,
+                           :state => origin_address.state.abbr,
+                           :zip => origin_address.zipcode
+                           )
+                           
       addr = order.ship_address
       destination = Location.new(:country => addr.country.iso,
                                 :state => (addr.state ? addr.state.abbr : addr.state_name),
                                 :city => addr.city,
                                 :zip => addr.zipcode)
       timings = Rails.cache.fetch(cache_key(line_items)+"-timings") do
-        timings = retrieve_timings(origin, destination, packages(order))
+        timings = retrieve_timings(origin, destination, packages(order), order.retailer.shipping_config)
       end
       return nil if timings.nil? || !timings.is_a?(Hash) || timings.empty?
       return timings[self.description]
@@ -63,9 +78,9 @@ module Calculator::ActiveShipping
     end
 
     private
-    def retrieve_rates(origin, destination, packages)
+    def retrieve_rates(origin, destination, packages, config = nil)
       begin
-        response = carrier.find_rates(origin, destination, packages)
+        response = carrier(config).find_rates(origin, destination, packages)
         # turn this beastly array into a nice little hash
         rate_hash = Hash[*response.rates.collect { |rate| [rate.service_name, rate.price] }.flatten]
         return rate_hash
@@ -90,10 +105,10 @@ module Calculator::ActiveShipping
     end
 
 
-    def retrieve_timings(origin, destination, packages)
+    def retrieve_timings(origin, destination, packages, config = nil)
       begin
-        if carrier.respond_to?(:find_time_in_transit)
-          response = carrier.find_time_in_transit(origin, destination, packages)
+        if carrier(config).respond_to?(:find_time_in_transit)
+          response = carrier(config).find_time_in_transit(origin, destination, packages)
           return response
         end
       rescue ActiveMerchant::Shipping::ResponseError => re
