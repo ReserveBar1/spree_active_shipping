@@ -7,10 +7,7 @@ class Calculator::Fedex::Base < Calculator::ActiveShipping::Base
                                          :login => Spree::ActiveShipping::Config[:fedex_login])
     else
       # retailer's fedex config gets passed in here above                                    
-      ActiveMerchant::Shipping::FedEx.new(:key => config[:key], 
-                                          :password => config[:password], 
-                                          :account => config[:account],
-                                          :login => config[:login])
+      ActiveMerchant::Shipping::FedEx.new(config)
     end
   end
 end
