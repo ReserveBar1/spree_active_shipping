@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = '1.1.0'
   s.authors     = ["Sean Schofield"]
   s.email       = 'sean@railsdog.com'
-  s.homepage    = 'http://github.com/spree/spree_active_shipping'
+  s.homepage    = 'http://github.com/thms/spree_active_shipping'
   s.summary     = 'Spree extension for providing shipping methods that wrap the active_shipping plugin.'
   s.description = 'Spree extension for providing shipping methods that wrap the active_shipping plugin.'
   s.required_ruby_version = '>= 1.8.7'
@@ -18,5 +18,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency('spree_core', '>= 0.70.0')
-  s.add_dependency('active_shipping', '0.9.13')
+  s.add_dependency('thms-active_shipping', '0.9.13')
 end
