@@ -3,7 +3,6 @@ require 'active_shipping'
 
 module ActiveShippingExtension
   class Engine < Rails::Engine
-    include ActiveShipping
     
     def self.activate
       Dir.glob(File.join(File.dirname(__FILE__), "../app/models/calculator/**/base.rb")) do |c|
