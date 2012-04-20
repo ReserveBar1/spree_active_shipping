@@ -3,5 +3,6 @@ module Spree
     def self.description
       I18n.t("fedex.saver")
     end
+
   end
 end

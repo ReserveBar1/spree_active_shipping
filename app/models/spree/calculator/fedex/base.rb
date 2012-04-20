@@ -16,5 +16,10 @@ module Spree
         ActiveMerchant::Shipping::FedEx.new(config)
       end
     end
+    
+    # Override in sub class to provide service type for Fedex ship requests
+    def self.service_type
+      ""
+    end
   end
 end
