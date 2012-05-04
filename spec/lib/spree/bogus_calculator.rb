@@ -1,3 +1,6 @@
+# otherwise complains that is can't find ActiveShipping::Base
+require 'spree/calculator/active_shipping/base'
+
 module Spree
   module ActiveShipping
     # Bogus calcualtor for testing purposes.  Uses the common functionality of ActiveShippingCalcualtor but
