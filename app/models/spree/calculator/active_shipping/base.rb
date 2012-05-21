@@ -135,6 +135,8 @@ module Spree
         weight = order.line_items.inject(0) do |weight, line_item|
           weight + (line_item.variant.weight ? (line_item.quantity * line_item.variant.weight * multiplier) : Spree::ActiveShipping::Config[:default_weight])
         end
+        # Caclulate weight of packaging
+        package_weight = Spree::Calculator::ActiveShipping::PackageWeight.for(order)
         package = Package.new(weight, [], :units => Spree::ActiveShipping::Config[:units].to_sym)
         [package]
       end
