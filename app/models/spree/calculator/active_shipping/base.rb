@@ -36,7 +36,8 @@ module Spree
         destination = Location.new(:country => addr.country.iso,
                                   :state => (addr.state ? addr.state.abbr : addr.state_name),
                                   :city => addr.city,
-                                  :zip => addr.zipcode)
+                                  :zip => addr.zipcode,
+                                  :address_type => addr.is_business ? "commercial" : "residential")
 
         rates = Rails.cache.fetch(cache_key(order)) do
           rates = retrieve_rates(origin, destination, packages(order), order.retailer.shipping_config)
@@ -137,7 +138,7 @@ module Spree
         end
         # Caclulate weight of packaging
         package_weight = Spree::Calculator::ActiveShipping::PackageWeight.for(order)
-        package = Package.new(weight, [], :units => Spree::ActiveShipping::Config[:units].to_sym)
+        package = Package.new(weight + package_weight, [], :units => Spree::ActiveShipping::Config[:units].to_sym)
         [package]
       end
 
