@@ -24,5 +24,6 @@ class Spree::ActiveShippingConfiguration < Spree::Preferences::Configuration
   preference :default_box_size, :array, :default => [14,8,8]
   preference :test_mode, :boolean, :default => false
   
-  
+  preference :payment_type, :string, :default => 'SENDER'
+  preference :payor_account_number, :string, :default => nil
 end
