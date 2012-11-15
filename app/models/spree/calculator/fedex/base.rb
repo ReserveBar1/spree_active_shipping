@@ -21,5 +21,34 @@ module Spree
     def self.service_type
       ""
     end
+    
+    # Override this method to allow passing of options, e.g. for the adult signature
+    private
+     def retrieve_rates(origin, destination, packages, config = nil, options = nil)
+       begin
+         response = carrier(config).find_rates(origin, destination, packages, options)
+         # turn this beastly array into a nice little hash
+         rate_hash = Hash[*response.rates.collect { |rate| [rate.service_name, rate.price] }.flatten]
+         return rate_hash
+       rescue ActiveMerchant::ActiveMerchantError => e
+
+         if [ActiveMerchant::ResponseError, ActiveMerchant::Shipping::ResponseError].include? e.class
+           params = e.response.params
+           if params.has_key?("Response") && params["Response"].has_key?("Error") && params["Response"]["Error"].has_key?("ErrorDescription")
+             message = params["Response"]["Error"]["ErrorDescription"]
+           else
+             message = e.message
+           end
+         else
+           message = e.to_s
+         end
+
+         Rails.cache.write @cache_key, {} #write empty hash to cache to prevent constant re-lookups
+
+         raise Spree::ShippingError.new("#{I18n.t(:shipping_error)}: #{message}")
+       end
+
+     end
+    
   end
 end

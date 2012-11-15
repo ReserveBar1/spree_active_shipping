@@ -40,7 +40,8 @@ module Spree
                                   :address_type => addr.is_business ? "commercial" : "residential")
 
         rates = Rails.cache.fetch(cache_key(order)) do
-          rates = retrieve_rates(origin, destination, packages(order), order.retailer.shipping_config)
+          options = order.contains_alcohol? ? {:adult_signature => true} : {}
+          rates = retrieve_rates(origin, destination, packages(order), order.retailer.shipping_config, options)
         end
 
         return nil if rates.empty?
@@ -142,7 +143,11 @@ module Spree
         end
         # Caclulate weight of packaging
         package_weight = Spree::Calculator::ActiveShipping::PackageWeight.for(order)
-        package = Package.new(weight + gift_packaging_weight + package_weight, [], :units => Spree::ActiveShipping::Config[:units].to_sym)
+        
+        # Round up the weight to the nearest lbs, like Fedex does in their calculations. At this point, the weight is on oz (due to the setting of unit_mlutiplier)
+        total_weight = ((weight + gift_packaging_weight + package_weight) / multiplier).ceil * multiplier
+        
+        package = Package.new(total_weight, [], :units => Spree::ActiveShipping::Config[:units].to_sym)
         [package]
       end
 
