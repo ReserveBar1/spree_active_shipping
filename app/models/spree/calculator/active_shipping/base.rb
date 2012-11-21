@@ -20,10 +20,6 @@ module Spree
         else
           order = object
         end
-  #      origin= Location.new(:country => Spree::ActiveShipping::Config[:origin_country],
-  #                           :city => Spree::ActiveShipping::Config[:origin_city],
-  #                           :state => Spree::ActiveShipping::Config[:origin_state],
-  #                           :zip => Spree::ActiveShipping::Config[:origin_zip])
         # Each retailer has his own shipping location, so we need to get the retailer's address to calcuate shipping fees
         origin_address = order.retailer.physical_address
         origin = Location.new(:country => origin_address.country.iso, 
@@ -32,7 +28,7 @@ module Spree
                               :zip => origin_address.zipcode
                               )
         addr = order.ship_address
-
+        # Destination is where we want to ship the package
         destination = Location.new(:country => addr.country.iso,
                                   :state => (addr.state ? addr.state.abbr : addr.state_name),
                                   :city => addr.city,
@@ -41,7 +37,11 @@ module Spree
 
         rates = Rails.cache.fetch(cache_key(order)) do
           options = order.contains_alcohol? ? {:adult_signature => true} : {}
-          rates = retrieve_rates(origin, destination, packages(order), order.retailer.shipping_config, options)
+          # Fedex setup is very quirky, only the Hudsn Jersey account has the right discounts programmed into it, 
+          # So we need to use that account for the rate requests and and retailer's account for the actual ship request.
+          ## rates = retrieve_rates(origin, destination, packages(order), order.retailer.shipping_config, options)
+          retailer = Spree::Retailer.find_by_fedex_account(Spree::Config[:corporate_fedex_account_number])
+          rates = retrieve_rates(origin, destination, packages(order), retailer.shipping_config, options)
         end
 
         return nil if rates.empty?
