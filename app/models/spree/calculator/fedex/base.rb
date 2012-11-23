@@ -33,11 +33,16 @@ module Spree
        rescue ActiveMerchant::ActiveMerchantError => e
 
          if [ActiveMerchant::ResponseError, ActiveMerchant::Shipping::ResponseError].include? e.class
-           params = e.response.params
-           if params.has_key?("Response") && params["Response"].has_key?("Error") && params["Response"]["Error"].has_key?("ErrorDescription")
-             message = params["Response"]["Error"]["ErrorDescription"]
+           # catch the case of the Net::Http Bad response case
+           if e.response.respond_to? :params
+             params = e.response.params
+             if params.has_key?("Response") && params["Response"].has_key?("Error") && params["Response"]["Error"].has_key?("ErrorDescription")
+               message = params["Response"]["Error"]["ErrorDescription"]
+             else
+               message = e.message
+             end
            else
-             message = e.message
+             message = "We could not retrieve shipping rates, please try again."
            end
          else
            message = e.to_s
