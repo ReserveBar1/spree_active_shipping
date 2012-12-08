@@ -7,6 +7,10 @@ module Spree
 
     class Base < Calculator
       include ActiveMerchant::Shipping
+      
+      # Add an uplift individual to each shipping method
+      preference :uplift, :decimal, :default => 0
+      
 
       def self.service_name
         self.description
@@ -48,6 +52,9 @@ module Spree
         rate = rates[self.class.description]
         return nil unless rate
         rate = rate.to_f + (Spree::ActiveShipping::Config[:handling_fee].to_f || 0.0)
+        
+        # Add individual uplift (preference is in USD, here we are already dealing with cents)
+        rate = rate + (preferred_uplift.to_f * 100.0)
 
         # divide by 100 since active_shipping rates are expressed as cents
         return rate/100.0
