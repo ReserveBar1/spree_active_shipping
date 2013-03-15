@@ -17,6 +17,10 @@ module Spree
       end
     end
     
+    def carrier_name
+      "Fedex"
+    end
+    
     # Override in sub class to provide service type for Fedex ship requests
     def self.service_type
       ""

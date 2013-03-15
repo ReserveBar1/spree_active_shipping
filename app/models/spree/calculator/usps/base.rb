@@ -8,5 +8,9 @@ module Spree
       ActiveMerchant::Shipping::USPS.new( :login => Spree::ActiveShipping::Config[:usps_login],
                                           :test => Spree::ActiveShipping::Config[:test_mode])
     end
+    
+    def carrier_name
+      "USPS"
+    end
   end
 end

@@ -18,5 +18,9 @@ module Spree
                                           :test => Spree::ActiveShipping::Config[:test_mode])
       end
     end
+    
+    def carrier_name
+      "UPS"
+    end
   end
 end
