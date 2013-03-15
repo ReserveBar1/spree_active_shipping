@@ -1,4 +1,4 @@
-# This is a base calculator for shipping calcualations using the ActiveShipping plugin.  It is not intended to be
+# This is a base calculator for shipping calculations using the ActiveShipping plugin.  It is not intended to be
 # instantiated directly.  Create sublcass for each specific shipping method you wish to support instead.
 # Digest::MD5 is used for cache_key generation.
 require 'digest/md5'
@@ -41,9 +41,10 @@ module Spree
 
         rates = Rails.cache.fetch(cache_key(order)) do
           options = order.contains_alcohol? ? {:adult_signature => true} : {}
-          # Fedex setup is very quirky, only the Hudsn Jersey account has the right discounts programmed into it, 
+          # Fedex setup is very quirky, only the Hudson Jersey account has the right discounts programmed into it, 
           # So we need to use that account for the rate requests and and retailer's account for the actual ship request.
           ## rates = retrieve_rates(origin, destination, packages(order), order.retailer.shipping_config, options)
+          # TODO: Once we enable proper UPS rate lookup we need to add the corporate ups account number and handle the logic
           retailer = Spree::Retailer.find_by_fedex_account(Spree::Config[:corporate_fedex_account_number])
           rates = retrieve_rates(origin, destination, packages(order), retailer.shipping_config, options)
         end
