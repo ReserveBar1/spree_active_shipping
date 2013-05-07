@@ -56,6 +56,9 @@ module Spree
         
         # Add individual uplift (preference is in USD, here we are already dealing with cents)
         rate = rate + (preferred_uplift.to_f * 100.0)
+        
+        # Add product based surcharges for the shipping
+        rate = rate + (order.shipping_surcharges * 100.0)
 
         # divide by 100 since active_shipping rates are expressed as cents
         return rate/100.0
