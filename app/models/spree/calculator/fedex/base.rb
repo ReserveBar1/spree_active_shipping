@@ -26,6 +26,11 @@ module Spree
       ""
     end
     
+    # Override in sub cass where necesary to provide special instructions, e.g. for saturday delivery
+    def self.saturday_delivery
+      false
+    end
+    
     # Override this method to allow passing of options, e.g. for the adult signature
     private
      def retrieve_rates(origin, destination, packages, config = nil, options = nil)
