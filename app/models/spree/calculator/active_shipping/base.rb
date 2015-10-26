@@ -30,7 +30,7 @@ module Spree
         rate += preferred_uplift.to_f
         
         # Add product based surcharges for the shipping
-        rate += order.shipping_surcharge
+        rate += order.shipping_surcharge if order.shipping_surcharge.present?
       end
 
       def timing(line_items)
